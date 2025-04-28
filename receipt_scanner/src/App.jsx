@@ -1,35 +1,85 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// Language: JavaScript + JSX (React)
+import { useState } from 'react';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [location, setLocation] = useState({ lat: null, lon: null });
+  const [stores, setStores] = useState([]); // to store nearby places
+  const [error, setError] = useState(null); // To store errors 
+
+  const GOOGLE_API_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxx'; 
+
+  // Function to get user's location
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        setLocation({ lat, lon });
+
+        // After getting location, fetch nearby stores
+        fetchNearbyStores(lat, lon);
+      }, (err) => {
+        console.error("Error getting location:", err);
+        setError("Failed to get your location");
+      });
+    } else {
+      setError("Geolocation is not supported by your browser");
+    }
+  };
+
+  // Function to fetch nearby stores using Google Places API
+  const fetchNearbyStores = async (lat, lon) => {
+    try {
+      const radius = 5000; // 5km
+      const type = "supermarket"; 
+
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&type=${type}&key=${GOOGLE_API_KEY}`;
+
+      const proxyUrl = 'https://corsproxy.io/?'; // to avoid CORS issues during development
+
+      const response = await fetch(proxyUrl + encodeURIComponent(url));
+      const data = await response.json();
+
+      if (data.results) {
+        setStores(data.results);
+      } else {
+        setError("No stores found");
+      }
+    } catch (err) {
+      console.error("Error fetching stores:", err);
+      setError("Failed to fetch stores");
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React (using the template)</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ padding: "20px" }}>
+      <h1>My Store Price App</h1>
+
+      <button onClick={getLocation}>Get My Location and Find Stores</button>
+
+      {location.lat && location.lon && (
+        <div style={{ marginTop: "20px" }}>
+          <p><strong>Latitude:</strong> {location.lat}</p>
+          <p><strong>Longitude:</strong> {location.lon}</p>
+        </div>
+      )}
+
+      {error && (
+        <p style={{ color: 'red' }}>{error}</p>
+      )}
+
+      {stores.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
+          <h2>Nearby Stores:</h2>
+          <ul>
+            {stores.map((store) => (
+              <li key={store.place_id}>{store.name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
