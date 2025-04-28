@@ -6,7 +6,7 @@ function App() {
   const [stores, setStores] = useState([]); // to store nearby places
   const [error, setError] = useState(null); // To store errors 
 
-  const GOOGLE_API_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxx'; 
+  const GOOGLE_API_KEY = 'AIzaSyC4UUCFNB74ZzftTIaXc0gvCTuAmpuSdQk'; 
 
   // Function to get user's location
   const getLocation = () => {
@@ -39,6 +39,7 @@ function App() {
 
       const response = await fetch(proxyUrl + encodeURIComponent(url));
       const data = await response.json();
+      console.log("API Response:", data);
 
       if (data.results) {
         setStores(data.results);
