@@ -6,7 +6,7 @@ function App() {
   const [stores, setStores] = useState([]); // to store nearby places
   const [error, setError] = useState(null); // To store errors 
 
-  const GOOGLE_API_KEY = 'AIzaSyC4UUCFNB74ZzftTIaXc0gvCTuAmpuSdQk'; 
+  const GOOGLE_API_KEY = 'xxxxxxxxxxxxxxxxxxxx'; 
 
   // Function to get user's location
   const getLocation = () => {
